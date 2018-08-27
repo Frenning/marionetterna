@@ -198,7 +198,7 @@ jQuery(document).ready(function($) {
 	//Select a page for token
 	$('.cff-managed-page').on('click', function(){
 		$('#cff_access_token, #cff_page_access_token').val( $(this).attr('data-token') ).addClass('cff-success');
-		// $('#cff_page_id').val( $(this).attr('data-page-id') );
+		if( $('#cff_page_id').val().trim() == '' ) $('#cff_page_id').val( $(this).attr('data-page-id') );
 		$(this).siblings().removeClass('cff-page-selected');
 		$(this).addClass('cff-page-selected');
 		// $('.cff-save-page-token').show();
