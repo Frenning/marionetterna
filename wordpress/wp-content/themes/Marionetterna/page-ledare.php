@@ -7,9 +7,9 @@
 <div id="primary" class="content-area col-sm-12 col-md-9">
     <div class="content-inside col-md-12">
     <?php
-        $counter = 1; //start counter
-        $grids = 3; //Grids per row
-        global $query_string; //Need this to make pagination work
+        $param = array (
+            'limit' => -1,
+        );
 
         $param = array(
             'limit' => -1,
