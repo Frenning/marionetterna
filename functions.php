@@ -212,10 +212,8 @@ function register_social_menu() {
  * Read page content from url.
  */
 function read_page_content_from_url($url){
-  //<?php 
   $d = new DOMDocument;
   $mock = new DOMDocument;
-  //filtrera ut år för eventuellt snabbare laddningstid.
   $d->loadHTML(file_get_contents($url));
   $body = $d->getElementsByTagName('body')->item(0);
   foreach ($body->childNodes as $child){
