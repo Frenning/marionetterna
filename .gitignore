@@ -1,0 +1,10 @@
+
+wordpress/web\.config
+
+wordpress/wp-config\.php
+
+wordpress/php_errors\.log
+
+wordpress/local-config\.php
+
+wordpress/wp-content/debug\.log
