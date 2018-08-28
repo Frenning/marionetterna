@@ -162,7 +162,7 @@ function dazzling_scripts() {
     wp_enqueue_style( 'flexslider-css', get_template_directory_uri().'/inc/css/flexslider.css' );
   }
 
-  wp_enqueue_style( 'dazzling-style', get_stylesheet_uri('') );
+  wp_enqueue_style( 'marionetterna-style', get_template_directory_uri().'/inc/css/style.css' );
 
   wp_enqueue_script('dazzling-bootstrapjs', get_template_directory_uri().'/inc/js/bootstrap.min.js', array('jquery') );
 
