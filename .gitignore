@@ -8,3 +8,7 @@ wordpress/php_errors\.log
 wordpress/local-config\.php
 
 wordpress/wp-content/debug\.log
+
+node_modules/
+
+*.css
