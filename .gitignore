@@ -12,3 +12,9 @@ wordpress/wp-content/debug\.log
 node_modules/
 
 *.css
+
+wordpress/wp-content/uploads/
+
+wordpress/wp-content/plugins/wordpress-importer/
+
+gulpfile\.js
