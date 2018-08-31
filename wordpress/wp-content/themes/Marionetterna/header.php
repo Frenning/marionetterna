@@ -14,6 +14,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="profile" href="http://gmpg.org/xfn/11">
 <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <style type="text/css">
 	@import url(https://dans.se/shop/shop.css);
 	@import url(https://dans.se/data/stylesheets/KYFPKgYjF9DhBWcn358egeJX.css);
@@ -26,12 +27,6 @@
 	<nav class="navbar navbar-default" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
-			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
-			    <span class="sr-only"><?php _e( 'Toggle navigation', 'dazzling' ); ?></span>
-			    <span class="icon-bar"></span>
-			    <span class="icon-bar"></span>
-			    <span class="icon-bar"></span>
-			  </button>
 
 				<div id="logo">
 
@@ -56,6 +51,12 @@
 						
 			</div>
 				<?php dazzling_header_menu(); ?>
+				<button id="hamburger-button" class="hamburger hamburger--elastic" type="button">
+					<span class="hamburger-box">
+						<span class="hamburger-inner"></span>
+					</span>
+				</button>
+
 		</div>
 	</nav><!-- .site-navigation -->
 

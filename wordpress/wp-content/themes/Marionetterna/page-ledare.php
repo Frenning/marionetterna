@@ -19,8 +19,17 @@
 
         while ( $ledare ->fetch() ) { 
             ?>
-            <div class="img-leaders col-md-4 col-sm-6">
-                <?php echo get_the_post_thumbnail($ledare->ID());?>
+            <div class="img-leaders col-lg-4 col-md-6 col-sm-6 col-xs-12">
+                <?php 
+                    if(get_the_post_thumbnail($ledare->ID())  != null)
+                        echo get_the_post_thumbnail($ledare->ID());
+                    else{
+                        ?>
+                        <img src="<?php echo get_template_directory_uri().'/assets/images/bild_saknas.png';  ?>" />
+                        <?php
+                    }
+                    
+                ?>
                 <h5> <?php echo $ledare->display('title'); ?> </h5>	
                 <p class="nummer"><?php echo $ledare->field('phonenumber'); ?></p>     
             </div>
