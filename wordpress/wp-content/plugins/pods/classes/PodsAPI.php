@@ -3700,7 +3700,11 @@ class PodsAPI {
 				// Handle Simple Relationships
 				if ( $simple ) {
 					if ( ! is_array( $value ) ) {
-						$value = explode( ',', $value );
+						if ( 0 < strlen( $value ) ) {
+							$value = array( $value );
+						} else {
+							$value = array();
+						}
 					}
 
 					$pick_limit = (int) pods_var_raw( 'pick_limit', $options, 0 );
@@ -8235,7 +8239,7 @@ class PodsAPI {
 		if ( empty( $object_type ) ) {
 			$object_type = 'post_type';
 			$object      = 'post';
-		} elseif ( empty( $object ) && in_array( $object_type, array( 'user', 'media', 'comment' ) ) ) {
+		} elseif ( empty( $object ) && in_array( $object_type, array( 'user', 'media', 'comment' ), true ) ) {
 			$object = $object_type;
 		}
 

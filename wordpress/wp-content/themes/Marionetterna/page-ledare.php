@@ -5,12 +5,8 @@
  ?>
 <?php get_header();?>
 <div id="primary" class="content-area col-sm-12 col-md-9">
-    <div class="content-inside col-md-12">
+    <div class="content-inside row content-leaders col-md-12">
     <?php
-        $param = array (
-            'limit' => -1,
-        );
-
         $param = array(
             'limit' => -1,
         );
@@ -31,7 +27,7 @@
                     
                 ?>
                 <h5> <?php echo $ledare->display('title'); ?> </h5>	
-                <p class="nummer"><?php echo $ledare->field('phonenumber'); ?></p>     
+                <h6 class="nummer"><?php echo $ledare->field('phonenumber'); ?></h6>     
             </div>
             <?php
         }

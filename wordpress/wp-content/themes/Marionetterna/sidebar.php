@@ -9,11 +9,6 @@
 	<div class="col-md-12 hidden-sm-down">
 		<?php do_action( 'before_sidebar' ); ?>
 		<?php if ( ! dynamic_sidebar( 'sidebar-1' ) ) : ?>
-
-			<aside id="search" class="widget widget_search">
-				<?php get_search_form(); ?>
-			</aside>
-
 		<?php endif; // end sidebar widget area ?>
 	</div><!-- widgets -->
 </div><!-- #secondary -->

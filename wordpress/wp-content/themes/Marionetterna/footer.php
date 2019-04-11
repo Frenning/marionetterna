@@ -9,27 +9,52 @@
             </div><!-- close .container -->
         </div><!-- close .site-content -->
 	<div id="footer-area">
-		<div class="container footer-inner">
-			<?php get_sidebar( 'footer' ); ?>
-		</div>
-		<footer id="colophon" class="site-footer" role="contentinfo">
-			<div class="site-info container">
-				<?php if( of_get_option('footer_social') ) dazzling_social_icons(); ?>
-				<nav role="navigation" class="col-md-6">
-					<?php dazzling_footer_links(); ?>
-				</nav>
-				<!-- TODO: REMOVE -->
-				<div class="copyright col-md-6">
-					<?php echo of_get_option( 'custom_footer_text', 'dazzling' ); ?>
-					<?php dazzling_footer_info(); ?>
+		<div id="colophon">
+			<div class="container">
+				<div class="row">
+				<div class="footer-content col-md-3 col-sm-6">
+					<?php
+					$param = array(
+						'limit' => -1,
+					);
+					$kontakt = pods('kontakt', $param);
+					?>
+					<?php echo $kontakt->display('content');?>
 				</div>
-			</div><!-- .site-info -->
-			<div class="scroll-to-top"><i class="fa fa-angle-up"></i></div><!-- .scroll-to-top -->
-		</footer><!-- #colophon -->
-	</div>
-</div><!-- #page -->
+				<div class="footer-content footer-content-mid col-md-3 col-sm-6">
+					<?php 
+					$kontakt = pods('kontakt', $id="mail"); 
+					echo $kontakt->display('content');
+					$kontakt = pods('kontakt', $id="anvandarvillkor"); 
+					echo $kontakt->display('content');
+					$kontakt = pods('kontakt', $id="personliga-uppgifter"); 
+					echo $kontakt->display('content');
+					?>	
+				</div>
+				<div class="footer-content col-md-3 col-sm-12">
+					<?php
+					$param = array(
+						'limit' => -1,
+					);
 
+					$socialmedia = pods('social-media', $param);
+					while ( $socialmedia ->fetch() ) { 
+					?>
+					<a class="social-icons" href="<?php echo $socialmedia->field('medialink'); ?>"><?php echo get_the_post_thumbnail($socialmedia->ID()); ?></a>
+					<?php 
+					} 
+					?>
+				</div>
+				<div class="footer-content col-md-3 hidden-sm-down">
+				</div>
+				</div>
+			</div>
+			<div class="scroll-to-top"><i class="fa fa-angle-up"></i></div><!-- .scroll-to-top -->
+		</div><!-- #colophon -->
+	</div><!-- #footer-area -->
+</div><!-- #page -->
 <?php wp_footer(); ?>
+
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
