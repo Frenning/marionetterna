@@ -60,6 +60,10 @@ body {
     overflow-x: scroll;
   }
 
+  table {
+    width: 100%;
+  }
+
   a {
     text-decoration: none;
     -webkit-transition: all 0.2s;
@@ -721,6 +725,14 @@ body {
     overflow-x: scroll;
   } 
 
+  TABLE.cwEvents TD {
+    padding: 0;
+  }
+  
+  TABLE.cwEvents TD.title {
+    padding: 0 !important;
+  }
+
   .post-area {
     border-bottom: 1px solid black;
     min-height: 50px;
@@ -844,6 +856,8 @@ body {
   }
 
   @media (min-width: 992px) {
+    .cff-item{
+      padding: 0px 30px !important; }
     .side-pull-left #primary {
       float: left;
     }

@@ -8,7 +8,7 @@ include('connect.php');
 //Get Post ID
 $comment_id = $_GET['id'];
 
-$json_object = cff_fetchUrl("https://graph.facebook.com/" . $comment_id . "/?fields=comments{created_time,from,id,message,message_tags,attachment,like_count}&access_token=" . $access_token);
+$json_object = cff_fetchUrl("https://graph.facebook.com/" . $comment_id . "/?fields=comments{created_time,from{name,id,picture{url},link},id,message,message_tags,attachment,like_count}&access_token=" . $access_token);
 
 //Encode comment text
 $json_object = json_decode($json_object);
@@ -16,7 +16,7 @@ $c_3 = 0;
 if( isset($json_object->comments->data) ){
 	$c_3 = 0;
 	foreach($json_object->comments->data as $comment ) {
-		$json_object->comments->data[$c_3]->message = htmlentities($comment->message, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+		$json_object->comments->data[$c_3]->message = htmlentities($comment->message, ENT_QUOTES, 'UTF-8');
 		$c_3++;
 	}
 }

@@ -1,9 +1,9 @@
 === Custom Facebook Feed Pro ===
 Author: Smash Balloon
-Support Website: http://smashballoon/custom-facebook-feed/
+Support Website: http://smashballoon.com/custom-facebook-feed/
 Requires at least: 3.0
-Tested up to: 5.0
-Version: 3.6.1
+Tested up to: 5.1
+Version: 3.7.2
 License: Non-distributable, Not for resale
 
 The Custom Facebook Feed allows you to display a completely customizable Facebook feed of any public Facebook page on your website.
@@ -34,6 +34,62 @@ Display a **completely customizable**, **responsive** and **search engine crawla
 5. You can display multiple feeds of different Facebook pages by specifying a Page ID directly in the shortcode: [custom-facebook-feed id=smashballoon num=5].
 
 == Changelog ==
+= 3.7.2 =
+* Fix: Fixed an issue caused by spaces between entries in the filtering settings for some feed types
+* Fix: When events from multiple different timezones were displayed then the end time would sometimes be incorrect
+* Fix: Added a class to the Like Box which was removed in the previous update as it broke the code snippet for centering it
+* Fix: Fixed a PHP notice which would sometimes display in album feeds
+* Fix: Fixed an issue when choosing to load the Font Awesome icon font locally instead of from the CDN
+* Tweak: When viewing an event in the lightbox all of the event information is now included
+* Tweak: Removed the Google+ share option as the platform has been deprecated
+
+= 3.7.1 =
+* Fix: Fixed an issue with the filter setting not working correctly with hashtags
+* Fix: Fixed an issue with linked tags in the post text displaying incorrectly in some languages
+* Fix: Added support for v1.1 of the Reviews extension
+
+= 3.7 =
+= MAJOR UPDATE =
+* New: We've updated the icons used in the comments box at the bottom of each post. Icons are now SVGs which allows them to appear much sharper on retina displays and are much more versatile. To switch back to the old icons use the following setting: Customize > Misc > Misc Settings > Disable SVG icons.
+* New: Icons are now displayed in color when the comments box is opened.
+* New: Added support for video playlists. To display a playlist simply add the playlist ID to the shortcode, like so: [custom-facebook-feed type=videos playlist="1234567890"]. The playlist ID can be found in the video URL after the "vl.", eg: .../videos/vl.1234567890/.
+* New: Added support for multi-image shared link cards. If a shared link post has multiple shared link images then a slider is added to allow the user to scroll through them.
+* New: Added settings to customize the colors in the lightbox. These can be found at: Customize > General > Lightbox.
+* New: You can now select between a "Regular" or "Boxed" post style. Settings for this can be found at: Customize > Style Posts > Post Item. A Box Shadow setting has been added to the "Boxed" post style.
+* New: Added some settings to control the size and color of the shared link URLs and descriptions. These can be found at: Customize > Style Posts > Shared Link Boxes.
+* New: Improved the Access Token retrieval process to make it more intuitive.
+* New: Added a setting to select between either small (130px) or large (720px) images to be used in timeline posts. This can be found at: Customize > Misc > Media > Post image size.
+
+* Tweak: Avatar images are now circular to match Facebook.
+* Tweak: Images in photo, album, and video grid feeds are now faded in when loaded.
+* Tweak: Moved lightbox arrows outside of the lightbox container.
+* Tweak: Made visual improvements to the popup lightbox.
+* Tweak: Added a custom scrollbar to the lightbox in Webkit browsers.
+* Tweak: Made the lightbox video player larger when possible for timeline video posts.
+* Tweak: Changed the way the Like Box loads to avoid a conflict with the Facebook Messenger widget.
+* Tweak: Photo and album grid feeds no longer use image redirects.
+* Tweak: Changed the elements used for icons from <i> to <span> to aid accessibility.
+* Tweak: Made some visual styling changes to the comments box.
+* Tweak: Animated the social media icons when the "Share" button is clicked.
+* Tweak: Updated API versions in all API calls.
+* Tweak: If using the Multifeed extension and the post limit isn't set then automatically calculate it to prevent retrieving far more posts than necessary.
+* Tweak: Added directions on how to easily renew an Events Access Token: https://smashballoon.com/renewing-an-events-access-token/
+* Tweak: Removed the share widgets from the footer of the admin so that they're only loaded when the "Share the plugin" button is clicked.
+
+* Fix: Fixed a security bug related to the API call used to get post meta data.
+* Fix: Fixed an issue with comment avatars not being displayed even when using a Page Access Token due to a recent Facebook API change.
+* Fix: If a valid link isn't available for a user who comments on a post then their name is no longer linked.
+* Fix: Uses the same Font Awesome handle as our other plugins so that they can share resources.
+* Fix: The filter setting no longer matches partial words.
+* Fix: The plugin no longer displays duplicate videos.
+* Fix: Added the "nofancybox" class to images so that the FancyBox lightbox isn't triggered if it's part of your theme or another plugin.
+* Fix: Fixed two layout bugs caused when setting the post date position to be at the bottom of the post.
+* Fix: Resolved some CSS validation issues caused when applied inline styles didn't contain any property values.
+* Fix: Fixed a PHP notice which was displayed when using PHP 5.4 due to the ENT_HTML5 constant not being supported.
+* Fix: Added titles to all iframes.
+* Fix: Fixed a PHP error caused by the Featured Post extension when set to only show posts by the page owner.
+* Fix: Fixed a rare issue with tags in post stories when the locale was set to be Greek.
+* Fix: Fixed bug where lightbox comments wouldn't display when displaying a feed of only album posts from a timeline.
 
 = 3.6.1 =
 * New: Added settings to translate the Facebook call-to-action buttons – such as "Learn More", "Shop Now", and "Message Page". These can be found at: Facebook Feed > Customize > Custom Text/Translate

@@ -3,6 +3,9 @@ if(!cff_js_exists){
 
 function cff_init( $cff ){
 
+	//JS is running
+	jQuery('.cff-nojs').removeClass('cff-nojs');
+
 	//Check whether it's a touch device
 	var cffTouchDevice = false;
     if (cffIsTouchDevice() === true) cffTouchDevice = true;
@@ -19,19 +22,63 @@ function cff_init( $cff ){
 
 	(function($){
 
+		//Set likebox width
+		$('.cff-likebox iframe').each(function(){
+			var $likebox = $(this),
+				likeboxWidth = $likebox.attr('data-likebox-width'),
+				cffFeedWidth = $likebox.parent().width();
+
+			//Default width is 340
+			if( likeboxWidth == '' ) likeboxWidth = 340;
+			//Change the width dynamically so it's responsive
+			if( cffFeedWidth < likeboxWidth ) likeboxWidth = cffFeedWidth;
+
+			$likebox.attr('src', 'https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F'+$likebox.attr('data-likebox-id')+'%2F&tabs&width='+likeboxWidth+'&small_header='+$likebox.attr('data-likebox-header')+'&adapt_container_width=true&hide_cover='+$likebox.attr('data-hide-cover')+'&hide_cta='+$likebox.attr('data-hide-cta')+'&show_facepile='+$likebox.attr('data-likebox-faces')+'&locale='+$likebox.attr('data-locale'));
+		});
+
 		//Toggle comments
 		jQuery(document).off('click', '#cff a.cff-view-comments').on('click', '#cff a.cff-view-comments', function(){
-			var $commentsBox = jQuery(this).closest('.cff-item').find('.cff-comments-box');
+			var $self = jQuery(this),
+				$commentsBox = $self.closest('.cff-item').find('.cff-comments-box');
+			$self.toggleClass('cff-open');
 			
-			$commentsBox.slideToggle();
+			$commentsBox.slideToggle(300);
 
 			//Add comment avatars
 			$commentsBox.find('.cff-comment:visible').each(function(){
 				var $thisComment = jQuery(this);
-				$thisComment.find('.cff-comment-img:not(.cff-comment-reply-img) a').html( '<img src="https://graph.facebook.com/'+$thisComment.attr("data-id")+'/picture" alt="Avatar" onerror="this.style.display=\'none\'" />' );
+				$thisComment.find('.cff-comment-img:not(.cff-comment-reply-img) a, .cff-comment-img:not(.cff-comment-reply-img) span').html( '<img src="'+$thisComment.attr("data-avatar")+'" alt="Avatar" onerror="this.style.display=\'none\'" />' );
 			});
 
 		});
+
+		//Comments box hover
+		var cffAnimateIconColorVar,
+			stopAnimate = false;
+		$cff.find('.cff-view-comments').hover(function(){
+			var $self = $(this),
+				time = 50;
+			if( $self.hasClass('cff-open') ) return;
+
+			$self.find('.cff-icon').each(function() {
+			    var $cffIcon = jQuery(this);
+			    cffAnimateIconColor($cffIcon, time);
+			    time += 50;
+			});
+		}, function(){
+			cffStopAnimateIconColor();
+			$(this).find('.cff-icon').removeClass('cff-animate');
+		});
+		function cffAnimateIconColor($cffIcon, time){
+			stopAnimate = false;
+			cffAnimateIconColorVar = setTimeout( function(){
+		        if( !stopAnimate ) $cffIcon.addClass('cff-animate');
+		    }, time);
+		}
+		function cffStopAnimateIconColor() {
+			clearTimeout(cffAnimateIconColorVar);
+			stopAnimate = true;
+		}
 
 		//Set paths for query.php
 		if (typeof cffsiteurl === 'undefined' || cffsiteurl == '') cffsiteurl = window.location.host + '/wp-content/plugins';
@@ -239,7 +286,7 @@ function cff_init( $cff ){
 				//Show comments and add comment avatars
 				$cffMoreCommentsLink.parent().find('.cff-comment').show().each(function(){
 					var $thisComment = jQuery(this);
-					$thisComment.find('.cff-comment-img:not(.cff-comment-reply-img) a').html( '<img src="https://graph.facebook.com/'+$thisComment.attr("data-id")+'/picture" alt="Avatar" />' );
+					$thisComment.find('.cff-comment-img:not(.cff-comment-reply-img) a, .cff-comment-img:not(.cff-comment-reply-img) span').html( '<img src="'+$thisComment.attr("data-avatar")+'" alt="Avatar" onerror="this.style.display=\'none\'" />' );
 				});
 			});
 			
@@ -271,7 +318,8 @@ function cff_init( $cff ){
 				var cffTextStr = $self.find('.cff-text').html(),
 					cffDescStr = $self.find('.cff-post-desc').html(),
 					regex = /(^|\s)#(\w*[\u0041-\u005A\u0061-\u007A\u00AA\u00B5\u00BA\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0370-\u0374\u0376\u0377\u037A-\u037D\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u0527\u0531-\u0556\u0559\u0561-\u0587\u05D0-\u05EA\u05F0-\u05F2\u0620-\u064A\u066E\u066F\u0671-\u06D3\u06D5\u06E5\u06E6\u06EE\u06EF\u06FA-\u06FC\u06FF\u0710\u0712-\u072F\u074D-\u07A5\u07B1\u07CA-\u07EA\u07F4\u07F5\u07FA\u0800-\u0815\u081A\u0824\u0828\u0840-\u0858\u08A0\u08A2-\u08AC\u0904-\u0939\u093D\u0950\u0958-\u0961\u0971-\u0977\u0979-\u097F\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD\u09CE\u09DC\u09DD\u09DF-\u09E1\u09F0\u09F1\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A59-\u0A5C\u0A5E\u0A72-\u0A74\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD\u0AD0\u0AE0\u0AE1\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D\u0B5C\u0B5D\u0B5F-\u0B61\u0B71\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BD0\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C33\u0C35-\u0C39\u0C3D\u0C58\u0C59\u0C60\u0C61\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD\u0CDE\u0CE0\u0CE1\u0CF1\u0CF2\u0D05-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D\u0D4E\u0D60\u0D61\u0D7A-\u0D7F\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0E01-\u0E30\u0E32\u0E33\u0E40-\u0E46\u0E81\u0E82\u0E84\u0E87\u0E88\u0E8A\u0E8D\u0E94-\u0E97\u0E99-\u0E9F\u0EA1-\u0EA3\u0EA5\u0EA7\u0EAA\u0EAB\u0EAD-\u0EB0\u0EB2\u0EB3\u0EBD\u0EC0-\u0EC4\u0EC6\u0EDC-\u0EDF\u0F00\u0F40-\u0F47\u0F49-\u0F6C\u0F88-\u0F8C\u1000-\u102A\u103F\u1050-\u1055\u105A-\u105D\u1061\u1065\u1066\u106E-\u1070\u1075-\u1081\u108E\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1380-\u138F\u13A0-\u13F4\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u1700-\u170C\u170E-\u1711\u1720-\u1731\u1740-\u1751\u1760-\u176C\u176E-\u1770\u1780-\u17B3\u17D7\u17DC\u1820-\u1877\u1880-\u18A8\u18AA\u18B0-\u18F5\u1900-\u191C\u1950-\u196D\u1970-\u1974\u1980-\u19AB\u19C1-\u19C7\u1A00-\u1A16\u1A20-\u1A54\u1AA7\u1B05-\u1B33\u1B45-\u1B4B\u1B83-\u1BA0\u1BAE\u1BAF\u1BBA-\u1BE5\u1C00-\u1C23\u1C4D-\u1C4F\u1C5A-\u1C7D\u1CE9-\u1CEC\u1CEE-\u1CF1\u1CF5\u1CF6\u1D00-\u1DBF\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2071\u207F\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2183\u2184\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2E2F\u3005\u3006\u3031-\u3035\u303B\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312D\u3131-\u318E\u31A0-\u31BA\u31F0-\u31FF\u3400-\u4DB5\u4E00-\u9FCC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA61F\uA62A\uA62B\uA640-\uA66E\uA67F-\uA697\uA6A0-\uA6E5\uA717-\uA71F\uA722-\uA788\uA78B-\uA78E\uA790-\uA793\uA7A0-\uA7AA\uA7F8-\uA801\uA803-\uA805\uA807-\uA80A\uA80C-\uA822\uA840-\uA873\uA882-\uA8B3\uA8F2-\uA8F7\uA8FB\uA90A-\uA925\uA930-\uA946\uA960-\uA97C\uA984-\uA9B2\uA9CF\uAA00-\uAA28\uAA40-\uAA42\uAA44-\uAA4B\uAA60-\uAA76\uAA7A\uAA80-\uAAAF\uAAB1\uAAB5\uAAB6\uAAB9-\uAABD\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEA\uAAF2-\uAAF4\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uABC0-\uABE2\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D\uFB1F-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]+\w*)/gi,
-					linkcolor = $self.find('.cff-text').attr('data-color');
+					linkcolor = $self.find('.cff-text').attr('data-color'),
+					linkcolorHTML = '';
 
 				function replacer(hash){
 					//Remove white space at beginning of hash
@@ -280,7 +328,10 @@ function cff_init( $cff ){
 					if ( /^#[0-9A-F]{6}$/i.test( replacementString ) ){
 						return replacementString;
 					} else {
-						return ' <a href="https://www.facebook.com/hashtag/'+ replacementString.substring(1) +'" target="_blank" rel="nofollow" style="color:#' + linkcolor + '">' + replacementString + '</a>';
+						if( typeof linkcolor !== 'undefined' ){
+							if( linkcolor.length > 1 ) linkcolorHTML = 'style="color:#' + linkcolor + '"';
+						}
+						return ' <a href="https://www.facebook.com/hashtag/'+ replacementString.substring(1) +'" target="_blank" rel="nofollow" '+linkcolorHTML+'>' + replacementString + '</a>';
 					}
 				}
 
@@ -341,7 +392,9 @@ function cff_init( $cff ){
 						if( full_text.length > 5 ) capText += full_text;
 						cffLightboxTitle = cffFormatCaption( capText );
 					} else if ( $self.hasClass('cff-event') ) {
-						cffLightboxTitle = cffFormatCaption( $self.find('.cff-date > .cff-start-date').text() );
+
+						if( $self.find('.cff-details').length ) cffLightboxTitle = cffFormatCaption( $self.find('.cff-details').html() );
+
 					} else if( $self.hasClass('cff-album-item') ) {
 						cffLightboxTitle = cffFormatCaption( $self.find('img').attr('alt') );
 					} else {
@@ -363,7 +416,7 @@ function cff_init( $cff ){
 
 					//Create the lightbox link
 					//Add the hover tile
-					var cffLightboxTile = '<a class="cff-lightbox-link" rel="nofollow" ';
+					var cffLightboxTile = '<a class="cff-lightbox-link nofancybox" rel="nofollow" ';
 
 					//If it's a YouTube or Vimeo then set the poster image to use in the lightbox
 					if( $photo.hasClass('cff-iframe-wrap') ){
@@ -400,7 +453,7 @@ function cff_init( $cff ){
 						cffLightboxTile += 'data-url="'+$photo.attr('href')+'" data-video="';
 					}
 
-					cffLightboxTile += '" data-type="'+postType+'" data-lb-comments="'+$photo.closest('.cff-lb').attr('data-lb-comments')+'"><div class="cff-photo-hover"><i class="fa fa-search-plus" aria-hidden="true"></i><span class="cff-screenreader">View</span></div></a>';
+					cffLightboxTile += '" data-type="'+postType+'" data-lb-comments="'+$photo.closest('.cff-lb').attr('data-lb-comments')+'"><div class="cff-photo-hover"><span class="fa fa-search-plus" aria-hidden="true"></span><span class="cff-screenreader">View</span></div></a>';
 
 					//Add the link to the photos/videos in the feed
 					$photo.prepend(cffLightboxTile);
@@ -418,13 +471,28 @@ function cff_init( $cff ){
 			}
 
 			//Share tooltip function
-			// Alternative method if needed:
-			// jQuery(document).on('click', '.cff-share-link', function(){
-		  	//	 $(this).siblings('.cff-share-tooltip').toggle();
-		  	// });
 			$self.find('.cff-share-link').unbind().bind('click', function(){
-	        	$self.find('.cff-share-tooltip').toggle();
+				var $cffShareTooltip = $self.find('.cff-share-tooltip')
+
+				//Hide tooltip
+				if( $cffShareTooltip.is(':visible') ){
+					$cffShareTooltip.hide().find('a').removeClass('cff-show');
+				} else {
+				//Show tooltip
+					$cffShareTooltip.show();
+
+					var time = 0;
+		        	$cffShareTooltip.find('a').each(function() {
+					    var $cffShareIcon = jQuery(this);
+					    setTimeout( function(){
+					        $cffShareIcon.addClass('cff-show');
+					    }, time);
+					    time += 20;
+					});
+				}
 	      	});
+
+
 
 
 			
@@ -1177,11 +1245,13 @@ function cff_init( $cff ){
 
 			if( typeof data.images !== 'undefined' && data.images !== null ) $self.find('.cff-lightbox-link').attr('href', data.images[0].source);
 			
+			//Removed in v3.7 as shouldn't be needed any longer. Commenting out in case needs to be re-added.
 			//Add the full size video image which is retrieved from query.php to fix the Facebook video image size API bug
-			if( $self.find('.cff-html5-video').length && typeof data.attachments !== 'undefined' && data.attachments !== null ){
-				$self.find('.cff-poster').attr('src', data.attachments.data[0].media.image.src);
-				$self.find('.cff-lightbox-link').attr('href', data.attachments.data[0].media.image.src);
-			}
+			// if( $self.find('.cff-html5-video').length && typeof data.attachments !== 'undefined' && data.attachments !== null ){
+			// 	$self.find('.cff-poster').attr('src', data.attachments.data[0].media.image.src);
+			// 	console.log( data.attachments.data[0] );
+			// 	$self.find('.cff-lightbox-link').attr('href', data.attachments.data[0].media.image.src);
+			// }
 		}
 
 
@@ -1233,29 +1303,37 @@ function cff_init( $cff ){
 				haha_added = false,
 				wow_added = false,
 				sad_added = false,
-				angry_added = false;
+				angry_added = false,
+				love_svg = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M462.3 62.7c-54.5-46.4-136-38.7-186.6 13.5L256 96.6l-19.7-20.3C195.5 34.1 113.2 8.7 49.7 62.7c-62.8 53.6-66.1 149.8-9.9 207.8l193.5 199.8c6.2 6.4 14.4 9.7 22.6 9.7 8.2 0 16.4-3.2 22.6-9.7L472 270.5c56.4-58 53.1-154.2-9.7-207.8zm-13.1 185.6L256.4 448.1 62.8 248.3c-38.4-39.6-46.4-115.1 7.7-161.2 54.8-46.8 119.2-12.9 142.8 11.5l42.7 44.1 42.7-44.1c23.2-24 88.2-58 142.8-11.5 54 46 46.1 121.5 7.7 161.2z"></path></svg>'+'<span class="cff-svg-bg-dark"><svg class="cff-svg-bg" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"></path></svg></span>',
+				haha_svg = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm152.7 400.7c-19.8 19.8-43 35.4-68.7 46.3-26.6 11.3-54.9 17-84.1 17s-57.5-5.7-84.1-17c-25.7-10.9-48.8-26.5-68.7-46.3-19.8-19.8-35.4-43-46.3-68.7-11.3-26.6-17-54.9-17-84.1s5.7-57.5 17-84.1c10.9-25.7 26.5-48.8 46.3-68.7 19.8-19.8 43-35.4 68.7-46.3 26.6-11.3 54.9-17 84.1-17s57.5 5.7 84.1 17c25.7 10.9 48.8 26.5 68.7 46.3 19.8 19.8 35.4 43 46.3 68.7 11.3 26.6 17 54.9 17 84.1s-5.7 57.5-17 84.1c-10.8 25.8-26.4 48.9-46.3 68.7zM281.8 206.3l80 48c11.5 6.8 24-7.6 15.4-18L343.6 196l33.6-40.3c8.6-10.3-3.8-24.8-15.4-18l-80 48c-7.7 4.7-7.7 15.9 0 20.6zm-147.6 48l80-48c7.8-4.7 7.8-15.9 0-20.6l-80-48c-11.6-6.9-24 7.7-15.4 18l33.6 40.3-33.6 40.3c-8.7 10.4 3.8 24.8 15.4 18zM383 288H113c-9.6 0-17.1 8.4-15.9 18 8.8 71 69.4 126 142.9 126h16c73.4 0 134-55 142.9-126 1.2-9.6-6.3-18-15.9-18zM256 400h-16c-50.2 0-93.5-33.3-107.4-80h230.8c-13.9 46.7-57.2 80-107.4 80z"></path></svg>'+'<svg class="cff-svg-bg" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm80 152c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm-160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm88 272h-16c-73.4 0-134-55-142.9-126-1.2-9.5 6.3-18 15.9-18h270c9.6 0 17.1 8.4 15.9 18-8.9 71-69.5 126-142.9 126z"></path></svg>',
+				wow_svg = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 464c-119.1 0-216-96.9-216-216S128.9 40 248 40s216 96.9 216 216-96.9 216-216 216zm0-184c-35.3 0-64 28.7-64 64s28.7 64 64 64 64-28.7 64-64-28.7-64-64-64zm0 96c-17.6 0-32-14.4-32-32s14.4-32 32-32 32 14.4 32 32-14.4 32-32 32zm-48-176c0-17.7-14.3-32-32-32s-32 14.3-32 32 14.3 32 32 32 32-14.3 32-32zm128-32c-17.7 0-32 14.3-32 32s14.3 32 32 32 32-14.3 32-32-14.3-32-32-32z"></path></svg>'+'<svg class="cff-svg-bg" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zM136 208c0-17.7 14.3-32 32-32s32 14.3 32 32-14.3 32-32 32-32-14.3-32-32zm112 208c-35.3 0-64-28.7-64-64s28.7-64 64-64 64 28.7 64 64-28.7 64-64 64zm80-176c-17.7 0-32-14.3-32-32s14.3-32 32-32 32 14.3 32 32-14.3 32-32 32z"></path></svg>',
+				sad_svg = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 464c-119.1 0-216-96.9-216-216S128.9 40 248 40s216 96.9 216 216-96.9 216-216 216zm0-152c-44.4 0-86.2 19.6-114.8 53.8-5.7 6.8-4.8 16.9 2 22.5 6.8 5.7 16.9 4.8 22.5-2 22.4-26.8 55.3-42.2 90.2-42.2s67.8 15.4 90.2 42.2c5.3 6.4 15.4 8 22.5 2 6.8-5.7 7.7-15.8 2-22.5C334.2 339.6 292.4 320 248 320zm-80-80c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32zm160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32-32 14.3-32 32 14.3 32 32 32z"></path></svg>'+'<svg class="cff-svg-bg" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm80 168c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm-160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm170.2 218.2C315.8 367.4 282.9 352 248 352s-67.8 15.4-90.2 42.2c-13.5 16.3-38.1-4.2-24.6-20.5C161.7 339.6 203.6 320 248 320s86.3 19.6 114.7 53.8c13.6 16.2-11 36.7-24.5 20.4z"></path></svg>',
+				angry_svg = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm0 464c-119.1 0-216-96.9-216-216S128.9 40 248 40s216 96.9 216 216-96.9 216-216 216zm0-136c-31.2 0-60.6 13.8-80.6 37.8-5.7 6.8-4.8 16.9 2 22.5s16.9 4.8 22.5-2c27.9-33.4 84.2-33.4 112.1 0 5.3 6.4 15.4 8 22.5 2 6.8-5.7 7.7-15.8 2-22.5-19.9-24-49.3-37.8-80.5-37.8zm-48-96c0-2.9-.9-5.6-1.7-8.2.6.1 1.1.2 1.7.2 6.9 0 13.2-4.5 15.3-11.4 2.6-8.5-2.2-17.4-10.7-19.9l-80-24c-8.4-2.5-17.4 2.3-19.9 10.7-2.6 8.5 2.2 17.4 10.7 19.9l31 9.3c-6.3 5.8-10.5 14.1-10.5 23.4 0 17.7 14.3 32 32 32s32.1-14.3 32.1-32zm171.4-63.3l-80 24c-8.5 2.5-13.3 11.5-10.7 19.9 2.1 6.9 8.4 11.4 15.3 11.4.6 0 1.1-.2 1.7-.2-.7 2.7-1.7 5.3-1.7 8.2 0 17.7 14.3 32 32 32s32-14.3 32-32c0-9.3-4.1-17.5-10.5-23.4l31-9.3c8.5-2.5 13.3-11.5 10.7-19.9-2.4-8.5-11.4-13.2-19.8-10.7z"></path></svg><span class="cff-svg-bg-dark"><svg class="cff-svg-bg" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><defs><linearGradient id="angryGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#f9ae9e" /><stop offset="70%" stop-color="#ffe7a4" /></linearGradient></defs><path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zM136 240c0-9.3 4.1-17.5 10.5-23.4l-31-9.3c-8.5-2.5-13.3-11.5-10.7-19.9 2.5-8.5 11.4-13.2 19.9-10.7l80 24c8.5 2.5 13.3 11.5 10.7 19.9-2.1 6.9-8.4 11.4-15.3 11.4-.5 0-1.1-.2-1.7-.2.7 2.7 1.7 5.3 1.7 8.2 0 17.7-14.3 32-32 32S136 257.7 136 240zm168 154.2c-27.8-33.4-84.2-33.4-112.1 0-13.5 16.3-38.2-4.2-24.6-20.5 20-24 49.4-37.8 80.6-37.8s60.6 13.8 80.6 37.8c13.8 16.5-11.1 36.6-24.5 20.5zm76.6-186.9l-31 9.3c6.3 5.8 10.5 14.1 10.5 23.4 0 17.7-14.3 32-32 32s-32-14.3-32-32c0-2.9.9-5.6 1.7-8.2-.6.1-1.1.2-1.7.2-6.9 0-13.2-4.5-15.3-11.4-2.5-8.5 2.3-17.4 10.7-19.9l80-24c8.4-2.5 17.4 2.3 19.9 10.7 2.5 8.5-2.3 17.4-10.8 19.9z"></path></svg></span>',
+				like_svg = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M496.656 285.683C506.583 272.809 512 256 512 235.468c-.001-37.674-32.073-72.571-72.727-72.571h-70.15c8.72-17.368 20.695-38.911 20.695-69.817C389.819 34.672 366.518 0 306.91 0c-29.995 0-41.126 37.918-46.829 67.228-3.407 17.511-6.626 34.052-16.525 43.951C219.986 134.75 184 192 162.382 203.625c-2.189.922-4.986 1.648-8.032 2.223C148.577 197.484 138.931 192 128 192H32c-17.673 0-32 14.327-32 32v256c0 17.673 14.327 32 32 32h96c17.673 0 32-14.327 32-32v-8.74c32.495 0 100.687 40.747 177.455 40.726 5.505.003 37.65.03 41.013 0 59.282.014 92.255-35.887 90.335-89.793 15.127-17.727 22.539-43.337 18.225-67.105 12.456-19.526 15.126-47.07 9.628-69.405zM32 480V224h96v256H32zm424.017-203.648C472 288 472 336 450.41 347.017c13.522 22.76 1.352 53.216-15.015 61.996 8.293 52.54-18.961 70.606-57.212 70.974-3.312.03-37.247 0-40.727 0-72.929 0-134.742-40.727-177.455-40.727V235.625c37.708 0 72.305-67.939 106.183-101.818 30.545-30.545 20.363-81.454 40.727-101.817 50.909 0 50.909 35.517 50.909 61.091 0 42.189-30.545 61.09-30.545 101.817h111.999c22.73 0 40.627 20.364 40.727 40.727.099 20.363-8.001 36.375-23.984 40.727zM104 432c0 13.255-10.745 24-24 24s-24-10.745-24-24 10.745-24 24-24 24 10.745 24 24z"></path></svg>'+'<svg class="cff-svg-bg" role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="likeGrad"><stop offset="25%" stop-color="rgba(0,0,0,0.05)" /><stop offset="26%" stop-color="rgba(255,255,255,0.7)" /></linearGradient><linearGradient id="likeGradHover"><stop offset="25%" stop-color="#a3caff" /><stop offset="26%" stop-color="#fff" /></linearGradient><linearGradient id="likeGradDark"><stop offset="25%" stop-color="rgba(255,255,255,0.5)" /><stop offset="26%" stop-color="rgba(255,255,255,0.7)" /></linearGradient></defs><path d="M104 224H24c-13.255 0-24 10.745-24 24v240c0 13.255 10.745 24 24 24h80c13.255 0 24-10.745 24-24V248c0-13.255-10.745-24-24-24zM64 472c-13.255 0-24-10.745-24-24s10.745-24 24-24 24 10.745 24 24-10.745 24-24 24zM384 81.452c0 42.416-25.97 66.208-33.277 94.548h101.723c33.397 0 59.397 27.746 59.553 58.098.084 17.938-7.546 37.249-19.439 49.197l-.11.11c9.836 23.337 8.237 56.037-9.308 79.469 8.681 25.895-.069 57.704-16.382 74.757 4.298 17.598 2.244 32.575-6.148 44.632C440.202 511.587 389.616 512 346.839 512l-2.845-.001c-48.287-.017-87.806-17.598-119.56-31.725-15.957-7.099-36.821-15.887-52.651-16.178-6.54-.12-11.783-5.457-11.783-11.998v-213.77c0-3.2 1.282-6.271 3.558-8.521 39.614-39.144 56.648-80.587 89.117-113.111 14.804-14.832 20.188-37.236 25.393-58.902C282.515 39.293 291.817 0 312 0c24 0 72 8 72 81.452z"></path></svg>',
+				like_svg_2 = '<svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M466.27 286.69C475.04 271.84 480 256 480 236.85c0-44.015-37.218-85.58-85.82-85.58H357.7c4.92-12.81 8.85-28.13 8.85-46.54C366.55 31.936 328.86 0 271.28 0c-61.607 0-58.093 94.933-71.76 108.6-22.747 22.747-49.615 66.447-68.76 83.4H32c-17.673 0-32 14.327-32 32v240c0 17.673 14.327 32 32 32h64c14.893 0 27.408-10.174 30.978-23.95 44.509 1.001 75.06 39.94 177.802 39.94 7.22 0 15.22.01 22.22.01 77.117 0 111.986-39.423 112.94-95.33 13.319-18.425 20.299-43.122 17.34-66.99 9.854-18.452 13.664-40.343 8.99-62.99zm-61.75 53.83c12.56 21.13 1.26 49.41-13.94 57.57 7.7 48.78-17.608 65.9-53.12 65.9h-37.82c-71.639 0-118.029-37.82-171.64-37.82V240h10.92c28.36 0 67.98-70.89 94.54-97.46 28.36-28.36 18.91-75.63 37.82-94.54 47.27 0 47.27 32.98 47.27 56.73 0 39.17-28.36 56.72-28.36 94.54h103.99c21.11 0 37.73 18.91 37.82 37.82.09 18.9-12.82 37.81-22.27 37.81 13.489 14.555 16.371 45.236-5.21 65.62zM88 432c0 13.255-10.745 24-24 24s-24-10.745-24-24 10.745-24 24-24 24 10.745 24 24z"></path></svg>';
+
 
 			//Add first reaction
 			var reaction_one_html = '';
 			if( reaction_first_num > 0 ){
 				if(data.love.summary.total_count == reaction_first_num){
-					reaction_one_html += '<span class="cff-love cff-reaction-one"></span>';
+					reaction_one_html += '<span class="cff-love cff-reaction-one cff-icon">'+love_svg+'</span>';
 					love_added = true;
 				}
 				if(data.haha.summary.total_count == reaction_first_num){
-					reaction_one_html += '<span class="cff-haha cff-reaction-one"></span>';
+					reaction_one_html += '<span class="cff-haha cff-reaction-one cff-icon">'+haha_svg+'</span>';
 					haha_added = true;
 				}
 				if(data.wow.summary.total_count == reaction_first_num){
-					reaction_one_html += '<span class="cff-wow cff-reaction-one"></span>';
+					reaction_one_html += '<span class="cff-wow cff-reaction-one cff-icon">'+wow_svg+'</span>';
 					wow_added = true;
 				}
 				if(data.sad.summary.total_count == reaction_first_num){
-					reaction_one_html += '<span class="cff-sad cff-reaction-one"></span>';
+					reaction_one_html += '<span class="cff-sad cff-reaction-one cff-icon">'+sad_svg+'</span>';
 					sad_added = true;
 				}
 				if(data.angry.summary.total_count == reaction_first_num){
-					reaction_one_html += '<span class="cff-angry cff-reaction-one"></span>';
+					reaction_one_html += '<span class="cff-angry cff-reaction-one cff-icon">'+angry_svg+'</span>';
 					angry_added = true;
 				}
 				reactions_html += reaction_one_html;
@@ -1268,29 +1346,30 @@ function cff_init( $cff ){
 					var reaction_two_html = '';
 
 					if(data.love.summary.total_count == reaction_second_num && !love_added){
-						reaction_two_html = '<span class="cff-love cff-reaction-two"></span>';
+						reaction_two_html = '<span class="cff-love cff-reaction-two cff-icon">'+love_svg+'</span>';
 					}
 					if(data.haha.summary.total_count == reaction_second_num && !haha_added){
-						reaction_two_html = '<span class="cff-haha cff-reaction-two"></span>';
+						reaction_two_html = '<span class="cff-haha cff-reaction-two cff-icon">'+haha_svg+'</span>';
 					}
 					if(data.wow.summary.total_count == reaction_second_num && !wow_added){
-						reaction_two_html = '<span class="cff-wow cff-reaction-two"></span>';
+						reaction_two_html = '<span class="cff-wow cff-reaction-two cff-icon">'+wow_svg+'</span>';
 					}
 					if(data.sad.summary.total_count == reaction_second_num && !sad_added){
-						reaction_two_html = '<span class="cff-sad cff-reaction-two"></span>';
+						reaction_two_html = '<span class="cff-sad cff-reaction-two cff-icon">'+sad_svg+'</span>';
 					}
 					if(data.angry.summary.total_count == reaction_second_num && !angry_added){
-						reaction_two_html = '<span class="cff-angry cff-reaction-two"></span>';
+						reaction_two_html = '<span class="cff-angry cff-reaction-two cff-icon">'+angry_svg+'</span>';
 					}
 					reactions_html += reaction_two_html;
 				}
 			}
 
+
 			$self.find('.cff-meta .cff-likes .cff-icon').after( reactions_html );
 
 			//If there's no likes but there's a reacton then don't show the like icon - show the reaction icon instead
 			if( parseInt(like_count) == 0 && ( parseInt(cff_love_count) > 0 || parseInt(cff_haha_count) > 0 || parseInt(cff_wow_count) > 0 || parseInt(cff_sad_count) > 0 || parseInt(cff_angry_count) > 0 ) ){
-				$self.find('.cff-meta .cff-likes .cff-icon').remove();
+				$self.find('.cff-meta .cff-likes .cff-like').remove();
 				$self.find('.cff-meta .cff-likes span').addClass('cff-no-animate');
 			}
 
@@ -1306,15 +1385,15 @@ function cff_init( $cff ){
 			var reactions_count_html = '<span class="cff-reactions-count">';
 
 			if( parseInt(like_count) > 0){
-				reactions_count_html += '<span class="cff-like"></span>';
+				reactions_count_html += '<span class="cff-like cff-icon">'+like_svg+'</span>';
 
 				if( !cff_no_reactions ){
 					if( parseInt(like_count) > 0 ) reactions_count_html += '<span class="cff-like-count">'+like_count+'</span>';
-					if( cff_love_count > 0 ) reactions_count_html += '<span class="cff-love"></span><span class="cff-love-count">'+cff_love_count+'</span>';
-					if( cff_haha_count > 0 ) reactions_count_html += '<span class="cff-haha"></span><span class="cff-haha-count">'+cff_haha_count+'</span>';
-					if( cff_wow_count > 0 ) reactions_count_html += '<span class="cff-wow"></span><span class="cff-wow-count">'+cff_wow_count+'</span>';
-					if( cff_sad_count > 0 ) reactions_count_html += '<span class="cff-sad"></span><span class="cff-sad-count">'+cff_sad_count+'</span>';
-					if( cff_angry_count > 0 ) reactions_count_html += '<span class="cff-angry"></span><span class="cff-angry-count">'+cff_angry_count+'</span>';
+					if( cff_love_count > 0 ) reactions_count_html += '<span class="cff-reaction-wrap"><span class="cff-love cff-icon">'+love_svg+'</span><span class="cff-love-count">'+cff_love_count+'</span></span>';
+					if( cff_haha_count > 0 ) reactions_count_html += '<span class="cff-reaction-wrap"><span class="cff-haha cff-icon">'+haha_svg+'</span><span class="cff-haha-count">'+cff_haha_count+'</span></span>';
+					if( cff_wow_count > 0 ) reactions_count_html += '<span class="cff-reaction-wrap"><span class="cff-wow cff-icon">'+wow_svg+'</span><span class="cff-wow-count">'+cff_wow_count+'</span></span>';
+					if( cff_sad_count > 0 ) reactions_count_html += '<span class="cff-reaction-wrap"><span class="cff-sad cff-icon">'+sad_svg+'</span><span class="cff-sad-count">'+cff_sad_count+'</span></span>';
+					if( cff_angry_count > 0 ) reactions_count_html += '<span class="cff-reaction-wrap"><span class="cff-angry cff-icon">'+angry_svg+'</span><span class="cff-angry-count">'+cff_angry_count+'</span></span>';
 				}
 			}
 			reactions_count_html += '</span>';
@@ -1327,11 +1406,37 @@ function cff_init( $cff ){
 
 		      		var liker_one = '',
 		      			liker_two = '';
-			      	if ( like_count > 0 && typeof data.likes.data[0] !== 'undefined' ) liker_one = '<a href="https://facebook.com/'+data.likes.data[0].id+'" style="color:'+cff_meta_link_color+';';
-			      	if (cff_no_reactions) liker_one += ' margin-left: 5px';
-			      	liker_one += '" target="_blank">'+data.likes.data[0].name+'</a>';
 
-		            if ( like_count > 1 && typeof data.likes.data[1] !== 'undefined' ) liker_two = '<a href="https://facebook.com/'+data.likes.data[1].id+'" style="color:'+cff_meta_link_color+'" target="_blank">'+data.likes.data[1].name+'</a>';
+			      	if ( like_count > 0 && typeof data.likes.data[0] !== 'undefined' ){
+
+			      		//Only link the name if a legit link is available for this user
+			      		var userHasLink = false;
+			      		if( typeof data.likes.data[0].link !== 'undefined' ){
+			      			if( data.likes.data[0].link.indexOf('/app_scoped_user_id/') == -1 ) userHasLink = true;
+			      		}
+
+			      		//Creat link or span
+			      		userHasLink ? liker_one += '<a href="'+data.likes.data[0].link+'" target="_blank" class="cff-liker-one-name" style="color:'+cff_meta_link_color+';' : liker_one = '<span class="cff-liker-one-name" style="';
+			      		if (cff_no_reactions) liker_one += ' margin-left: 5px';
+			      		liker_one += '">'+data.likes.data[0].name;
+
+			      		userHasLink ? liker_one += '</a>' : liker_one += '</span>';
+			      	}
+
+		            if ( like_count > 1 && typeof data.likes.data[1] !== 'undefined' ){
+
+		            	//Only link the name if a legit link is available for this user
+			      		var userHasLink = false;
+			      		if( typeof data.likes.data[1].link !== 'undefined' ){
+			      			if( data.likes.data[1].link.indexOf('/app_scoped_user_id/') == -1 ) userHasLink = true;
+			      		}
+
+			      		//Creat link or span
+			      		userHasLink ? liker_two += '<a href="'+data.likes.data[1].link+'" target="_blank" style="color:'+cff_meta_link_color+'">;' : liker_two = '<span>';
+			      		liker_two += data.likes.data[1].name;
+
+			      		userHasLink ? liker_two += '</a>' : liker_two += '</span>';
+		            }
 
 		            if (like_count == 1){
 		                cff_likes_this += liker_one+' '+cff_translate_likes_this_text;
@@ -1390,13 +1495,25 @@ function cff_init( $cff ){
 	    			cff_comments += '<div class="cff-comment" id="cff_'+commentItem.id+'" data-id="'+cff_comment_from_id+'"';
 	    			cff_comments += ' style="';
 	    			( i >= commentShow ) ? cff_comments += 'display: none;' : cff_comments += 'display: block;';
-	    			cff_comments += $self.find('#cff_'+commentItem.id).attr('style');
-	    			cff_comments += '">';
+	    			if( typeof $self.find('#cff_'+commentItem.id).attr('style') !== 'undefined' ) cff_comments += $self.find('#cff_'+commentItem.id).attr('style');
+	    			cff_comments += '"';
+	    			if( typeof commentItem.from !== 'undefined' ){
+	    				if( typeof commentItem.from.picture !== 'undefined' ){
+	    					cff_comments += 'data-avatar="'+commentItem.from.picture.data.url+'"';
+	    				}
+	    			}
+	    			cff_comments += '>';
 		          	cff_comments += '<div class="cff-comment-text-wrapper">';
 		          	cff_comments += '<div class="cff-comment-text';
 		          	if( cff_hide_comment_avatars ) cff_comments += ' cff-no-image';
 		          	cff_comments += '"><p>';
-		          	if( cff_comment_author_info ) cff_comments += '<a href="https://facebook.com/'+commentItem.from.id+'" class="cff-name" target="_blank" style="color:' + cff_meta_link_color + '">'+commentItem.from.name+'</a>';
+		          	if( cff_comment_author_info ){
+		          		if( typeof commentItem.from.link !== 'undefined' ){
+		          			cff_comments += '<a href="'+commentItem.from.link+'" class="cff-name" target="_blank" style="color:' + cff_meta_link_color + '">'+commentItem.from.name+'</a>';
+		          		} else {
+		          			cff_comments += '<span class="cff-name">'+commentItem.from.name+'</span>';
+		          		}
+		          	}
 
 					//MESSAGE TAGS
 					if( cff_post_tags && commentItem.hasOwnProperty('message_tags') ){
@@ -1432,10 +1549,10 @@ function cff_init( $cff ){
 						cff_comment_time = $self.find('#cff_'+commentItem.id).attr('data-cff-comment-date');
 					//If the time is undefined then don't show it
 					if( typeof cff_comment_time !== 'undefined' ){
-						cff_comments += cff_comment_time;
+						cff_comments += '<span class="cff-comment-date">'+cff_comment_time+'</span>';
 						cff_middot = '&nbsp; &middot; &nbsp;';
 					}
-					if ( commentItem.like_count > 0 ) cff_comments += '<span class="cff-comment-likes">'+cff_middot+'<b></b>'+commentItem.like_count+'</span>';
+					if ( commentItem.like_count > 0 ) cff_comments += '<span class="cff-comment-likes"><span class="cff-comment-likes-bg"><b>'+like_svg_2+'</b>'+commentItem.like_count+'</span></span>';
 					cff_comments += '</span>';
 
 					//Comment replies
@@ -1452,13 +1569,15 @@ function cff_init( $cff ){
 
 					//Only load the comment avatars if they're being displayed initially, otherwise load via JS on click to save all the HTTP requests on page load
 					if( !cff_hide_comment_avatars && cff_comment_author_info ){
-							cff_comments += '<div class="cff-comment-img cff-avatar-fallback"><a href="https://facebook.com/'+commentItem.from.id+'" target="_blank">';
+							cff_comments += '<div class="cff-comment-img cff-avatar-fallback">';
+							if( typeof commentItem.from.link !== 'undefined' ) cff_comments += '<a href="https://facebook.com/'+commentItem.from.link+'" target="_blank">';
 					  	if( cff_expand_comments && (i < commentShow) ) {
-					    	cff_comments += '<img src="https://graph.facebook.com/'+commentItem.from.id+'/picture" width=32 height=32 alt="'+commentItem.from.name+'">';
+					    	cff_comments += '<img src="'+commentItem.from.picture.data.url+'" width=32 height=32 alt="'+commentItem.from.name+'" onerror="this.style.display=\'none\'">';
 					  	} else {
 					    	cff_comments += '<span class="cff-comment-avatar"></span>';
 					  	}
-					  	cff_comments += '</a></div>';
+					  	if( typeof commentItem.from.link !== 'undefined' ) cff_comments += '</a>';
+					  	cff_comments += '</div>';
 					}
 
 					cff_comments += '</div>'; //End .cff-comment
@@ -1467,15 +1586,56 @@ function cff_init( $cff ){
 
 			} //End if
 
+			//Remove the comments added for SEO in PHP
+			$self.find('.cff-comments-wrap .cff-comment').remove();
 			//Add the comments to the page
-			$self.find('.cff-comments-wrap').html( cff_comments );
+			$self.find('.cff-comments-wrap').prepend( cff_comments );
 			$self.find('.cff-show-more-comments').attr('data-cff-comments-total', cff_total_comments_count);
+
+			//Add border radius
+			if( $self.find('.cff-comment-likes span').length > 0 ) $self.find('.cff-comment-on-facebook').css({'border-top-left-radius':0,'border-top-right-radius':0});
+			if( $self.find('.cff-comments-wrap .cff-comment').length > 0 ) $self.find('.cff-comment-on-facebook').css({'border-bottom-left-radius':0,'border-bottom-right-radius':0});
+			//Add a little more padding if there's no comments
+			if( $self.find('.cff-comments-wrap .cff-comment').length < 1 ) $self.find('.cff-comment-on-facebook').css('padding','8px 15px 8px 10px');
 
 			setTimeout(function(){
         		if( $self.closest('.cff').hasClass('cff-masonry') && !$self.closest('.cff').hasClass('cff-masonry-css') ) cffAddMasonry( $self.closest('.cff') );
       		}, 200);
 
 		} //End cffCreateComments()
+
+
+		//Create shared link multi-image slider
+		setTimeout(function(){
+			var $cffLinkSliderSlides = $('.cff-link-slider .cff-link-slider-slides'),
+				$cffLinkSliderItem = $cffLinkSliderSlides.find('.cff-link-slider-item'),
+				cffLinkSliderCount = $cffLinkSliderItem.length,
+				cffLinkSliderWidth = $('.cff-link-slider').width(),
+				cffCurSlide = 0;
+			$cffLinkSliderSlides.css({ width: cffLinkSliderWidth * cffLinkSliderCount });
+			$cffLinkSliderItem.css({ width: cffLinkSliderWidth });
+
+		    function cffMoveSlide(dir) {
+		    	//Change slides
+		    	dir == 'prev' ?	cffCurSlide-- : cffCurSlide++;
+		        $cffLinkSliderSlides.css('left', -cffCurSlide*cffLinkSliderWidth);
+
+		        //Hide the nav arrows at beginning/end
+		    	cffCurSlide == cffLinkSliderCount-1 ? $('a.cff-slider-next').hide() : $('a.cff-slider-next').show();
+		    	cffCurSlide > 0 ? $('a.cff-slider-prev').show() : $('a.cff-slider-prev').hide();
+		    };
+		    //Nav arrows click
+		    $('a.cff-slider-prev, a.cff-slider-next').click(function(e){
+		    	e.preventDefault();
+		        $(this).hasClass('cff-slider-prev') ? cffMoveSlide('prev') : cffMoveSlide('next');
+		    });
+		    //Vertically center last image in slider
+		    setTimeout(function(){
+		    	var cffLastSlideHeight = $cffLinkSliderSlides.find('.cff-link-slider-item').first().height();
+		    	$cffLinkSliderSlides.find('.cff-final-item').css('height', cffLastSlideHeight).find('img').css('margin-top', (cffLastSlideHeight/2)-100 );
+		    }, 1000);
+		}, 10);
+
 
 	})(jQuery); //End (function($){ 
 
@@ -1527,12 +1687,12 @@ function cff_init( $cff ){
 					fill: true,
 					verticalAlign: 'center',			//	'top'	//	'bottom' // '50%'  // '10%'
 					horizontalAlign: 'center',			//	'left'	//	'right'  // '50%'  // '10%'
-					useBackgroundSize: true,
+					useBackgroundSize: false,
 					useDataHtmlAttr: true,
 
 					responsive: true,					/* Only for use with BackgroundSize false (or old browsers) */
-					delay: 0,							/* Only for use with BackgroundSize false (or old browsers) */
-					fadeInTime: 0,						/* Only for use with BackgroundSize false (or old browsers) */
+					delay: false,							/* Only for use with BackgroundSize false (or old browsers) */
+					fadeInTime: false,						/* Only for use with BackgroundSize false (or old browsers) */
 					removeBoxBackground: true,			/* Only for use with BackgroundSize false (or old browsers) */
 					hardPixels: true,					/* Only for use with BackgroundSize false (or old browsers) */
 					responsiveCheckTime: 500,			/* Only for use with BackgroundSize false (or old browsers) */ /* time to check div resize */
@@ -1542,10 +1702,11 @@ function cff_init( $cff ){
 					onStart: null,						// no-params
 					onFinish: null,						// no-params
 					onItemStart: null,					// params: (index, container, img )
-					onItemFinish: null,					// params: (index, container, img )
+					onItemFinish: function(index, container, img){  // params: (index, container, img )
+						img.addClass('cffFadeIn');
+					},					
 					onItemError: null					// params: (index, container, img )
 				};
-
 
 				checkBgsIsavailable();
 				var imgLiquidRoot = this;
@@ -1853,7 +2014,9 @@ function cff_init( $cff ){
 		}
 		head.appendChild(style);
 	}();
-	jQuery(".cff-new .cff-album-cover, .cff-new .cff-crop").imgLiquid({fill:true});
+	jQuery(".cff-new .cff-album-cover").imgLiquid({fill:true});
+	jQuery(".cff-new .cff-crop").imgLiquid({fill:true, useBackgroundSize:true});
+
 
 
 } //********* END cff_init() FUNCTION ************//
@@ -1976,18 +2139,30 @@ function cffLoadCommentReplies( $this ){
 							allComments += '<div class="cff-comment-reply" id="cff_'+commentItem.id+'"><div class="cff-comment-text-wrapper"><div class="cff-comment-text';
 							if(!cff_comment_author_info) allComments += ' cff-no-name';
 							allComments += '"><p>';
-							if(cff_comment_author_info) allComments += '<a href="http://facebook.com/'+commentItem.from.id+'" class="cff-name" target="_blank" rel="nofollow" style="color:#;">'+commentItem.from.name+'</a>';
+
+
+							if(cff_comment_author_info){
+								if( typeof commentItem.from.link != 'undefined' ){
+									allComments += '<a href="http://facebook.com/'+commentItem.from.id+'" class="cff-name" target="_blank" rel="nofollow">'+commentItem.from.name+'</a>';
+								} else {
+									allComments += '<span class="cff-name">'+commentItem.from.name+'</span>';
+								}
+							}
+
+
 							var cffCommentMessage = cffEncodeHTML(commentItem.message);
-							allComments += cffCommentMessage+'</p>';
+							allComments += cffCommentMessage;
+
+							//Show like count if exists
+						  	if(parseInt(commentItem.like_count) > 0) allComments += '<span class="cff-comment-likes"><span class="cff-comment-likes-bg"><b style="padding-top: 3px;"><svg role="img" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M466.27 286.69C475.04 271.84 480 256 480 236.85c0-44.015-37.218-85.58-85.82-85.58H357.7c4.92-12.81 8.85-28.13 8.85-46.54C366.55 31.936 328.86 0 271.28 0c-61.607 0-58.093 94.933-71.76 108.6-22.747 22.747-49.615 66.447-68.76 83.4H32c-17.673 0-32 14.327-32 32v240c0 17.673 14.327 32 32 32h64c14.893 0 27.408-10.174 30.978-23.95 44.509 1.001 75.06 39.94 177.802 39.94 7.22 0 15.22.01 22.22.01 77.117 0 111.986-39.423 112.94-95.33 13.319-18.425 20.299-43.122 17.34-66.99 9.854-18.452 13.664-40.343 8.99-62.99zm-61.75 53.83c12.56 21.13 1.26 49.41-13.94 57.57 7.7 48.78-17.608 65.9-53.12 65.9h-37.82c-71.639 0-118.029-37.82-171.64-37.82V240h10.92c28.36 0 67.98-70.89 94.54-97.46 28.36-28.36 18.91-75.63 37.82-94.54 47.27 0 47.27 32.98 47.27 56.73 0 39.17-28.36 56.72-28.36 94.54h103.99c21.11 0 37.73 18.91 37.82 37.82.09 18.9-12.82 37.81-22.27 37.81 13.489 14.555 16.371 45.236-5.21 65.62zM88 432c0 13.255-10.745 24-24 24s-24-10.745-24-24 10.745-24 24-24 24 10.745 24 24z"></path></svg></b>'+commentItem.like_count+'</span></span>';
+
+							allComments += '</p>';
 
 						  	//Add image attachment if exists
 							if( typeof commentItem.attachment !== 'undefined' ) allComments += '<a class="cff-comment-attachment" href="'+commentItem.attachment.url+'" target="_blank"><img src="'+commentItem.attachment.media.image.src+'" alt="'+commentItem.attachment.title+'" /></a>';
 
-		       				//Show like count if exists
-						  	if(parseInt(commentItem.like_count) > 0) allComments += '<span class="cff-time"><span class="cff-comment-likes"><b></b>'+commentItem.like_count+'</span></span>';
-
 						  	allComments += '</div></div>';
-						  	if(cff_comment_author_info) allComments += '<div class="cff-comment-img cff-comment-reply-img"><a href="http://facebook.com/'+commentItem.from.id+'" target="_blank" rel="nofollow"><img src="https://graph.facebook.com/'+commentItem.from.id+'/picture" width="20" height="20" alt="Avatar" onerror="this.style.display=\'none\'"></a></div>';
+						  	if(cff_comment_author_info) allComments += '<div class="cff-comment-img cff-comment-reply-img"><a href="http://facebook.com/'+commentItem.from.id+'" target="_blank" rel="nofollow"><img src="'+commentItem.from.picture.data.url+'" width="20" height="20" alt="Avatar" onerror="this.style.display=\'none\'"></a></div>';
 						  	allComments += '</div>';
 						});
 					}
@@ -2070,8 +2245,12 @@ function cffLightbox(){
 			// Attach event handlers to the new DOM elements. click click click
 			Lightbox.prototype.build = function() {
 
+				//Disable SVG icons?
+				var cff_lightbox_svg_class = '';
+				if( $('.cff.cff-no-svgs').length ) cff_lightbox_svg_class = 'cff-no-svgs';
+
 			  	var self = this;
-			  	$("<div id='cff-lightbox-overlay' class='cff-lightbox-overlay'></div><div id='cff-lightbox-wrapper' class='cff-lightbox-wrapper'><div class='cff-lightbox-outerContainer'><div class='cff-lightbox-container'><iframe type='text/html' src='' allowfullscreen frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe><img class='cff-lightbox-image' src='' alt='"+$('#cff').attr('data-fb-text')+"' /><div class='cff-lightbox-nav'><a class='cff-lightbox-prev' href=''><span>Previous</span></a><a class='cff-lightbox-next' href=''><span>Next</span></a></div><div class='cff-lightbox-loader'><a class='cff-lightbox-cancel'></a></div><div class='cff-lightbox-sidebar'></div></div></div><div class='cff-lightbox-dataContainer'><div class='cff-lightbox-data'><div class='cff-lightbox-details'><p class='cff-lightbox-caption'><span class='cff-lightbox-caption-text'></span><a class='cff-lightbox-facebook' href=''>"+$('#cff').attr('data-fb-text')+"</a></p><div class='cff-lightbox-thumbs'><div class='cff-lightbox-thumbs-holder'></div></div></div><div class='cff-lightbox-closeContainer'><a class='cff-lightbox-close'><i class='fa fa-times' aria-hidden='true'></i></a></div></div></div></div>").appendTo($('body'));
+			  	$("<div id='cff-lightbox-overlay' class='cff-lightbox-overlay'></div><div id='cff-lightbox-wrapper' class='cff-lightbox-wrapper "+cff_lightbox_svg_class+"'><div class='cff-lightbox-outerContainer'><div class='cff-lightbox-container'><iframe type='text/html' src='' allowfullscreen frameborder='0' webkitAllowFullScreen mozallowfullscreen allowFullScreen title='Video'></iframe><img class='cff-lightbox-image' src='' alt='"+$('#cff').attr('data-fb-text')+"' /><div class='cff-lightbox-nav'><a class='cff-lightbox-prev' href=''><span>Previous</span></a><a class='cff-lightbox-next' href=''><span>Next</span></a></div><div class='cff-lightbox-loader'><a class='cff-lightbox-cancel'></a></div><div class='cff-lightbox-sidebar'></div></div></div><div class='cff-lightbox-dataContainer'><div class='cff-lightbox-data'><div class='cff-lightbox-details'><p class='cff-lightbox-caption'><span class='cff-lightbox-caption-text'></span><a class='cff-lightbox-facebook' href=''><span class='fa fab fa-facebook-square' aria-hidden='true' style='margin-right:6px;'></span>"+$('#cff').attr('data-fb-text')+"</a></p><div class='cff-lightbox-thumbs'><div class='cff-lightbox-thumbs-holder'></div></div></div><div class='cff-lightbox-closeContainer'><a class='cff-lightbox-close'><span class='fa fa-times' aria-hidden='true'></span></a></div></div></div></div>").appendTo($('body'));
 			  
 				// Cache jQuery objects
 				this.$lightbox       = $('#cff-lightbox-wrapper');
@@ -2304,11 +2483,15 @@ function cffLightbox(){
 						windowHeight   = $(window).height();
 
 						//If this feed has lightbox comments enabled then add room for the sidebar
-						var cff_lb_comments_width = 0;
+						var cff_lb_comments_width = 0,
+							cffNavArrowsWidth = 80;
 
 						if( $('#cff_' + self.album[0].postid).closest('#cff').attr('data-lb-comments') == 'true' && windowWidth > 640 ) cff_lb_comments_width = 300;
 
-						maxImageWidth  = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20 - cff_lb_comments_width;
+						//Use narrower arrows on mobile
+						if(window.innerWidth < 640) cffNavArrowsWidth = 40;
+
+						maxImageWidth  = windowWidth - self.containerLeftPadding - self.containerRightPadding - 20 - cff_lb_comments_width - cffNavArrowsWidth;
 						maxImageHeight = windowHeight - self.containerTopPadding - self.containerBottomPadding - bottomPadding;
 
 						// Is there a fitting issue?
@@ -2484,7 +2667,7 @@ function cffLightbox(){
 					//Remove the close button from the bottom of lightbox as it's added to the top of the sidebar
 					$('.cff-lightbox-dataContainer .cff-lightbox-close').remove();
 
-		        	$lightbox_sidebar.html("<div class='cff-lightbox-closeContainer'><div class='cff-lightbox-close'><i class='fa fa-times' aria-hidden='true'></i></div></div><div class='cff-lightbox-sidebar-content'>" + cff_post_author + "<p class='cff-lightbox-caption'><span class='cff-lightbox-caption-text'>" + $('.cff-lightbox-caption-text').html() + '</span></p></div>' + $('#cff_'+this.album[this.currentImageIndex].postid+' .cff-comments-box')[0].outerHTML );
+		        	$lightbox_sidebar.html("<div class='cff-lightbox-closeContainer'><div class='cff-lightbox-close'><span class='fa fa-times' aria-hidden='true'></span></div></div><div class='cff-lightbox-sidebar-content'>" + cff_post_author + "<p class='cff-lightbox-caption'><span class='cff-lightbox-caption-text'>" + $('.cff-lightbox-caption-text').html() + '</span></p></div>' + $('#cff_'+this.album[this.currentImageIndex].postid+' .cff-comments-box')[0].outerHTML );
 
 		        	this.$lightbox.find('.cff-lightbox-close').on('click', function() {
 						self.end();
@@ -2513,7 +2696,7 @@ function cffLightbox(){
 		        	//Add comment avatars
 					$lightbox_sidebar.find('.cff-comment:visible').each(function(){
 						var $thisComment = jQuery(this);
-						$thisComment.find('.cff-comment-img:not(.cff-comment-reply-img) a').html( '<img src="https://graph.facebook.com/'+$thisComment.attr("data-id")+'/picture" alt="Avatar" />' );
+						$thisComment.find('.cff-comment-img:not(.cff-comment-reply-img) a, .cff-comment-img:not(.cff-comment-reply-img) span').html( '<img src="'+$thisComment.attr("data-avatar")+'" alt="Avatar" onerror="this.style.display=\'none\'" />' );
 					});
 
 					//Load comment replies
@@ -2534,7 +2717,7 @@ function cffLightbox(){
 
 
 
-		        $('#cff-lightbox-wrapper').removeClass('cff-has-iframe cff-fb-player');
+		        $('#cff-lightbox-wrapper').removeClass('cff-has-iframe cff-fb-player cff-has-thumbs');
 
 		        //If it's an iframe video (embed or FB video player)
 		        if( typeof this.album[this.currentImageIndex].iframe !== 'undefined' ){
@@ -2565,7 +2748,7 @@ function cffLightbox(){
 	            if( this.album[this.currentImageIndex].isthumbnail ) isThumbnail = true;
 
 		      	//Remove existing thumbs unless it's a thumbnail image which is being navigated through in which case keep the existing thumbnails
-		      	if( !isThumbnail ) $('.cff-lightbox-thumbs-holder').empty();
+		      	if( !isThumbnail ) $('.cff-lightbox-thumbs-holder').empty().removeClass('cff-animate');
 
 		      	//Change the link on the Facebook icon to be the link to the Facebook post only if it's the first image in the lightbox and one of the thumbs hasn't been clicked
 		      	if( this.album[this.currentImageIndex].link == $('.cff-lightbox-image').attr('src') ){
@@ -2575,7 +2758,6 @@ function cffLightbox(){
 		      	//Show thumbs area if there are thumbs
 		     	if( this.album[this.currentImageIndex].showthumbs == 'true' ){
 		      		$('.cff-lightbox-thumbs').show();
-		      		// $('.cff-lightbox-thumbs .cff-loader').show();
 
 		      		//Get the post ID
 		      		var thisPostId = this.album[this.currentImageIndex].postid,
@@ -2619,10 +2801,11 @@ function cffLightbox(){
 						});
 
 			      		//Add thumbs to the page
-		            	$('.cff-lightbox-thumbs-holder').html( '<div style="margin-top: 10px;">' + albumThumbs + '</div>' );
+		            	$('.cff-lightbox-thumbs-holder').html( '<div class="cff-lightbox-thumbs-wrap">' + albumThumbs + '</div>' ).addClass('cff-animate');
+		            	$('.cff-lightbox-wrapper').addClass('cff-has-thumbs');
 
 		            	//Liquidfill the thumbs
-		            	jQuery(".cff-lightbox-thumbs-holder a").imgLiquid({fill:true});
+		            	jQuery(".cff-lightbox-thumbs-holder a").imgLiquid({fill:true, useBackgroundSize:true});
 
 		            	//Hide the loader
 		            	$('.cff-loader').hide();
@@ -2648,7 +2831,7 @@ function cffLightbox(){
 				      	//If this is an albums only item and the thumbs will
 				      	if( albumsonly ){
 				      		cffAttachmentsUrl = cffAttachmentsUrl + '&albumsonly=true';
-				      		$('.cff-lightbox-thumbs-holder').css('min-height', 45).after('<div class="cff-loader fa-spin"></div>');
+				      		$('.cff-lightbox-thumbs-holder').css('min-height', 45).after('<div class="cff-loader"></div>');
 				      	}
 
 				      	//If it's a group album then add the absolute path so we can get the User Access Token from the DB
@@ -2674,6 +2857,7 @@ function cffLightbox(){
 							      		//Format the caption and add links
 							      		dataCaption = cffLinkify(dataCaption);
 		                				dataCaption = dataCaption.replace( hashRegex , cffReplaceHashtags );
+
 		                				// dataCaption = dataCaption.replace( tagRegex , cffReplaceTags ); - causes an issue with email address linking
 										dataCaption = String(dataCaption).replace(/& /g, '&amp; ').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, "<br/>");
 
@@ -2745,10 +2929,13 @@ function cffLightbox(){
 				            	} //End if/else
 
 								//Add thumbs to the page
-				            	$('.cff-lightbox-thumbs-holder').append( '<div style="margin-top: 10px;">' + albumThumbs + '</div>' );
+				            	if( albumThumbs.length > 0 ){
+				            		$('.cff-lightbox-thumbs-holder').html( '<div class="cff-lightbox-thumbs-wrap">' + albumThumbs + '</div>' ).addClass('cff-animate');
+				            		$('.cff-lightbox-wrapper').addClass('cff-has-thumbs');
+				            	}
 
 				            	//Liquidfill the thumbs
-				            	jQuery(".cff-lightbox-thumbs-holder .cff-lightbox-attachment").imgLiquid({fill:true});
+				            	jQuery(".cff-lightbox-thumbs-holder .cff-lightbox-attachment").imgLiquid({fill:true, useBackgroundSize:true});
 
 				            	//Hide the loader
 				            	$('.cff-loader').hide();

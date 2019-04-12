@@ -25,42 +25,6 @@ jQuery(document).ready(function($) {
 
 	});
 
-	// //Is this a page, group or profile?
-	// var cff_page_type = jQuery('.cff-page-type select').val(),
-	// 	$cff_page_type_options = jQuery('.cff-page-options'),
-	// 	$cff_profile_error = jQuery('.cff-profile-error.cff-page-type'),
-	// 	$cff_group_error = jQuery('.cff-group-error.cff-page-type');
-
-	// //Should we show anything initially?
-	// if(cff_page_type !== 'page') $cff_page_type_options.hide();
-	// if(cff_page_type == 'profile') $cff_profile_error.show();
-	// if(cff_page_type == 'group') $cff_group_error.show();
-
-	// //When page type is changed show the relevant item
-	// jQuery('.cff-page-type').change(function(){
-	// 	cff_page_type = jQuery('.cff-page-type select').val();
-
-	// 	if( cff_page_type !== 'page' ) {
-	// 		$cff_page_type_options.hide();
-	// 		if( cff_page_type == 'profile' ) {
-	// 				$cff_profile_error.show();
-	// 				$cff_group_error.hide();
-	// 			} else if( cff_page_type == 'group' ) {
-	// 				$cff_group_error.show();
-	// 				$cff_profile_error.hide();
-	// 			} else {
-	// 				$cff_group_error.hide();
-	// 				$cff_profile_error.hide();
-	// 			}
-			
-	// 	} else {
-	// 		$cff_page_type_options.show();
-	// 		$cff_profile_error.hide();
-	// 		$cff_group_error.hide();
-	// 	}
-	// });
-
-
 	//PHOTOS ONLY
 	//When 'Display photos from your Photos page' is checked then show the options
 	var cff_photo_source = jQuery('#cff_photos_source').val();
@@ -251,13 +215,24 @@ jQuery(document).ready(function($) {
         toggleMediaOptions();
     });
 
+    //Selecting a post style
+	jQuery('.cff-post-style').click(function(){
+        var $self = jQuery(this);
+        $('.cff_post_style').trigger('change');
+        $self.addClass('cff-layout-selected').find('#cff_post_style').attr('checked', 'checked');
+        $self.siblings().removeClass('cff-layout-selected');
+    });
+    function cffChangePostStyleSettings() {
+        setTimeout(function(){
+            jQuery('.cff-post-style-settings').hide();
+            jQuery('.cff-post-style-settings.cff-'+jQuery('.cff_post_style:checked').val()).show();
+        }, 1);
+    }
+    cffChangePostStyleSettings();
+    jQuery('.cff_post_style').change(cffChangePostStyleSettings);
+
     //Add the color picker
 	if( jQuery('.cff-colorpicker').length > 0 ) jQuery('.cff-colorpicker').wpColorPicker();
-
-	//Show clear cache message when changing only events options
-	// jQuery("#cff-admin .cff-please-clear-cache input, #cff-admin .cff-please-clear-cache select").change(function() {
-	// 	jQuery('.cff-clear-cache-notice').show();
-	// });
 
 
 	//Mobile width
@@ -406,19 +381,42 @@ jQuery(document).ready(function($) {
 	$('#cff_admin_cancel_btn').on('click', function(){
 		$('#cff_fb_login_modal').hide();
 	});
+	$('.cff-modal-close').on('click', function(){
+		$('.cff_modal_tokens').hide();
+	});
+	$('#cff_fb_show_tokens').on('click', function(){
+		$('.cff_modal_tokens').show();
+	});
 
 	//Select a page for token
 	$('.cff-managed-page').on('click', function(){
-		$('#cff_access_token').val( $(this).attr('data-token') ).addClass('cff-success');
-		if( $('#cff_page_id').val().trim() == '' ) $('#cff_page_id').val( $(this).attr('data-page-id') );
+		$('#cff-insert-token, .cff-insert-reviews-token, .cff-insert-both-tokens').removeAttr('disabled');
 
 		$(this).siblings().removeClass('cff-page-selected');
 		$(this).addClass('cff-page-selected');
-		// $('.cff-save-page-token').show();
-		//Check the own access token setting so it reveals token field
-		if( $('#cff_show_access_token:checked').length < 1 ){
-			$("#cff_show_access_token").trigger("change").prop( "checked", true );
+	});
+
+	//Insert Page Access Token
+	$('#cff-insert-token').on('click', function(){
+		$('#cff_access_token').val( $('.cff-page-selected').attr('data-token') ).addClass('cff-success');
+		if( $('#cff_page_id').val().trim() == '' ) $('#cff_page_id').val( $('.cff-page-selected').attr('data-page-id') );
+		$('.cff_modal_tokens').hide();
+
+		location.hash = "cffnomodal";
+	});
+
+	//Show the modal by default, but hide if the "cffnomodal" class is added to prevent it showing after saving settings
+	if( location.hash !== '#cffnomodal' ){
+		$('.cff_modal_tokens').removeClass('cffnomodal');
+	}
+
+	//Insert Reviews Token
+	$('.cff-insert-reviews-token, .cff-insert-both-tokens').on('click', function(){
+		if( $(this).hasClass('cff-insert-both-tokens') ){
+			$('#cff_access_token').val( $('.cff-page-selected').attr('data-token') ).addClass('cff-success');
 		}
+		$('#cff_page_access_token').val( $('.cff-page-selected').attr('data-token') ).addClass('cff-success');
+		$('.cff_modal_tokens').hide();
 	});
 
 
@@ -448,5 +446,14 @@ jQuery(document).ready(function($) {
         }); // ajax call
     }); // clear-persistent-cache click
 
+    //Load the admin share widgets
+    $('#cff-admin-show-share-links').on('click', function(){
+    	$(this).fadeOut();
+        if( $('#cff-admin-share-links iframe').length == 0 ) $('#cff-admin-share-links').html('<a href="https://twitter.com/share" class="twitter-share-button" data-url="https://smashballoon.com/custom-facebook-feed/" data-text="Display your Facebook posts on your site your way using the Custom Facebook Feed WordPress plugin!" data-via="smashballoon" data-dnt="true">Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document, "script", "twitter-wjs");</script> <style type="text/css"> #twitter-widget-0{float: left; width: 82px !important;}.IN-widget{margin-right: 20px;}</style> <div id="fb-root" style="display: none;"></div><script>(function(d, s, id){var js, fjs=d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js=d.createElement(s); js.id=id; js.src="//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.0"; fjs.parentNode.insertBefore(js, fjs);}(document, "script", "facebook-jssdk"));</script> <div class="fb-like" data-href="https://smashballoon.com/custom-facebook-feed/" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true" style="display: block; float: left; margin-right: 5px;"></div><script src="//platform.linkedin.com/in.js" type="text/javascript"> lang: en_US </script> <script type="IN/Share" data-url="https://smashballoon.com/custom-facebook-feed/"></script></div>');
+
+        setTimeout(function(){
+        	$('#cff-admin-share-links').addClass('cff-show');
+        }, 500);
+    });
 
 });

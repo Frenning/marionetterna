@@ -19,6 +19,18 @@ if( $usegrouptoken || $isvideo ) $use_object_id = false;
 
 ( $use_object_id ) ? $id = $object_id : $id = $post_id;
 
+//Check IDs to make sure they're numeric as they could be printed in an error message
+check_id($object_id);
+check_id($post_id);
+
+function check_id($check_id){
+	if (preg_match("#^[0-9_]+$#", $check_id) || empty($check_id) || $check_id == 'undefined' ) {
+		//Contains numbers, underscores, is empty or undefined
+	} else {
+		exit;
+	}
+}
+
 //How many comments does this post have?
 ( isset($_GET['comments_num']) ) ? $comments_num = intval($_GET['comments_num']) : $comments_num = 0;
 ( isset($_GET['likes_num']) ) ? $likes_num = intval($_GET['likes_num']) : $likes_num = 0;
@@ -28,7 +40,7 @@ if( $usegrouptoken || $isvideo ) $use_object_id = false;
 
 //Make the API request to get the data from Facebook
 function api_call($id, $likes, $reactions, $images, $access_token, $attachments){
-	$json_object = cff_fetchUrl("https://graph.facebook.com/v2.8/" . $id . "/?fields=".$likes."comments.summary(true){id,from,message,message_tags,created_time,like_count,comment_count,attachment{media}}".$reactions.$images.$attachments."&access_token=" . $access_token);
+	$json_object = cff_fetchUrl("https://graph.facebook.com/v3.2/" . $id . "/?fields=".$likes."comments.summary(true){id,from{id,name,picture{url},link},message,message_tags,created_time,like_count,comment_count,attachment{media}}".$reactions.$images.$attachments."&access_token=" . $access_token);
 
 	return $json_object;
 }
@@ -42,7 +54,7 @@ if( $metaType == 'meta' ){
 
 	$reactions = ",reactions.type(LOVE).summary(total_count).limit(0).as(love),reactions.type(WOW).summary(total_count).limit(0).as(wow),reactions.type(HAHA).summary(total_count).limit(0).as(haha),reactions.type(SAD).summary(total_count).limit(0).as(sad),reactions.type(ANGRY).summary(total_count).limit(0).as(angry)";
 
-	$likes = "likes.summary(true).limit(3){id,name},";
+	$likes = "likes.summary(true).limit(3){id,name,link},";
 
 	//If it's a timeline event then don't request reactions or images
 	isset($_GET['timeline_event']) ? $timeline_events = true : $timeline_events = false;
