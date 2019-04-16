@@ -25,9 +25,9 @@
 					<?php 
 					$kontakt = pods('kontakt', $id="mail"); 
 					echo $kontakt->display('content');
-					$kontakt = pods('kontakt', $id="anvandarvillkor"); 
+					$kontakt = pods('anvandarvillkor', $id="anvandarvillkor"); 
 					echo $kontakt->display('content');
-					$kontakt = pods('kontakt', $id="personliga-uppgifter"); 
+					$kontakt = pods('anvandarvillkor', $id="personliga-uppgifter"); 
 					echo $kontakt->display('content');
 					?>	
 				</div>
