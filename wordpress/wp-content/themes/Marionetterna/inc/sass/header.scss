@@ -153,8 +153,7 @@ background-color: rgba(0, 0, 0, 0.1);
         height: 100%;
         .navbar .container{
             display:block;
-        }
-        
+        }       
     }
     #hamburger-button{
         padding:0;
@@ -218,7 +217,7 @@ background-color: rgba(0, 0, 0, 0.1);
 
         .menu-item-has-children
         {
-            border-top: #DAA520 1px solid;
+            border-top: #DAA520 1px solid;       
             &:first-child{
                 border-bottom: 0;
             }
@@ -227,10 +226,11 @@ background-color: rgba(0, 0, 0, 0.1);
             ul{
                 background-color: transparent;
                 position: relative;
+                top: 0px !important;
                 box-shadow:none;
                 -webkit-box-shadow:none;
                 &.dropdown-menu.show{
-                    display: block;
+                    display: block;                   
                 }
                 li{
                     width:100% !important;
@@ -263,7 +263,6 @@ background-color: rgba(0, 0, 0, 0.1);
 
 @media (max-width: 576px) {
 #menu-header-menu{
-    padding-top: 100px !important;
     .menu-item-has-children
     {
         ul{
