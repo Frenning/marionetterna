@@ -502,6 +502,9 @@ body {
     padding: 10px;
     border-radius: 10px;
     align-content: center;
+    img {
+      width: -webkit-fill-available;
+    }
   }
   
   .widget-area {
