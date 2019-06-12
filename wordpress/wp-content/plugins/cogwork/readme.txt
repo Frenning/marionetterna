@@ -2,7 +2,7 @@
 Contributors: Erik Terenius
 Tags: CogWork, MinaAktiviteter, Dans.se, shop, events, booking, registration, payment, customers, members
 Requires at least: 4.6
-Tested up to: 4.8
+Tested up to: 5.2
 Stable tag: 0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -87,3 +87,10 @@ To include a list of products or bookable events you only need to write [cw shop
 
 = 1.4.2 =
 * Bugfix. Shortcode parameters without a specified value created wrong URL.
+
+= 1.5 =
+* Added shortcodes cwLink and cwChildPages for that does not fetch any external data
+* Restructured code to make it easier to add new shortcodes and grasp the basic functionality
+
+= 1.5.1 =
+* Removed htmlformating in cwLinks since WP does this in advance

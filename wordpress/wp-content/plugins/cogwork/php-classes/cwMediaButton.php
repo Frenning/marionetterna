@@ -58,7 +58,7 @@ class cwMediaButton {
 	public function admin_footer() {
 
 		if (!cwMediaButton::showMediaButton()) {
-			return;
+			return '';
 		}
 
 		$html = "\n";

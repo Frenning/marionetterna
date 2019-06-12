@@ -6,16 +6,18 @@
  * @param string $tag
  * @return string
  */
-function cwAddShortcode($attributes, $content, $tag) {
-
-	// Placing the require_once() here stops it from being loaded unless it's needed
-	require_once(CW_PHP_CLASSES_DIR.'cwShortcode.php');
-
-	$shortcode = new cwShortcode($attributes, $content, $tag);
-
-	return $shortcode->getHtmlContent();
+function cwProcessShortCode($attributes, $content, $tag) {
+	require_once(CW_PHP_CLASSES_DIR.'cwShortCodeProcessor.php');
+	return cwShortCodeProcessor::process($attributes, $content, $tag);
 }
-add_shortcode('cw'    , 'cwAddShortcode');
-add_shortcode('cwShop', 'cwAddShortcode'); // For backward compability with old installations
+
+// Add all supported shortcodes
+add_shortcode('cw'          , 'cwProcessShortCode');
+add_shortcode('cwLink'      , 'cwProcessShortCode');
+add_shortcode('cwChildPages', 'cwProcessShortCode');
+
+// Only for backward compability with old installations
+add_shortcode('cwShop'      , 'cwProcessShortCode');
+add_shortcode('cwToc'       , 'cwProcessShortCode');
 
 ?>
