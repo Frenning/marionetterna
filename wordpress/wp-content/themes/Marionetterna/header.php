@@ -22,7 +22,7 @@
 <?php wp_head(); ?>
 </head>
 
-<body <?php body_class(); ?>
+<body <?php body_class(); ?>>
 <div id="page" class="hfeed site">
 	<nav class="navbar navbar-default" role="navigation">
 		<div class="container">
@@ -30,40 +30,27 @@
 
 				<div id="logo">
 
-					<!-- <?php echo is_home() ?  '<h1 class="site-title">' : '<span class="site-title">'; ?> -->
-
-						<?php if( get_header_image() != '' ) : ?>
-
-							<a href="<?php echo esc_url( home_url( '/' ) ); ?>"><img src="<?php header_image(); ?>"  height="<?php echo get_custom_header()->height; ?>" width="<?php echo get_custom_header()->width; ?>" alt="<?php bloginfo( 'name' ); ?>"/></a>
-
-
-						<?php endif; // header image was removed ?>
-
-						<?php if( !get_header_image() ) : ?>
-	
-							<a class="navbar-brand" href="<?php echo esc_url( home_url( '/' ) ); ?>"><img class="logo" src="<?php bloginfo('template_directory'); ?>/assets/images/logo_50x50.png" alt="" /> <title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
-
-						<?php endif; // header image was removed (again) ?>
-
-				<!--	<?php echo is_home() ?  '</h1>' : '</span>'; ?> end of .site-name -->
+					<!--<?php echo is_home() ?  '<h1 class="site-title">' : '<span class="site-title">'; ?> -->
+						<a class="navbar-brand" href="<?php echo esc_url( home_url( '/' ) ); ?>"><img class="logo" src="<?php bloginfo('template_directory'); ?>/assets/images/logo_50x50.png" alt="" /> <title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a>
+					<!--<?php echo is_home() ?  '</h1>' : '</span>'; ?> end of .site-name -->
 
 				</div><!-- end of #logo -->
 						
 			</div>
-				<?php dazzling_header_menu(); ?>
-				<button id="hamburger-button" class="hamburger hamburger--elastic" type="button">
-					<span class="hamburger-box">
-						<span class="hamburger-inner"></span>
-					</span>
-				</button>
+			<?php 
+				// TODO: replace dazzling header
+				//header_nav_menu("primary");
+				dazzling_header_menu(); 
+			?>
+			<button id="hamburger-button" class="hamburger hamburger--elastic" type="button">
+				<span class="hamburger-box">
+					<span class="hamburger-inner"></span>
+				</span>
+			</button>
 
 		</div>
 	</nav><!-- .site-navigation -->
 
-        <div class="top-section">
-		<?php dazzling_featured_slider(); ?>
-		<?php dazzling_call_for_action(); ?>
-        </div>
 		<div id="content" class="site-content container">
 		
             <div class="container main-content-area"><?php

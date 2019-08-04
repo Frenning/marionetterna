@@ -1,1 +1,0 @@
-sass input.scss style.css

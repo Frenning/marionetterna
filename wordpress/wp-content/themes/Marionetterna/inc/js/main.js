@@ -16,10 +16,6 @@ jQuery(document).ready(function($) {
             }, !1)
         }()
 
-        $('#navbar .menu-item-has-children').click(function(e){
-            var target = $(e.target);
-            target.parent(".menu-item-has-children").toggleClass('open');
-        });
         $('#hamburger-button').click(function(e){
             e.preventDefault();
             $(e.currentTarget).toggleClass('is-active');
